@@ -1,0 +1,32 @@
+ "C:\Program Files\Google\Chrome\Application\chrome.exe" --remote-debugging-port=9222 --user-data-dir="C:\chrome-data"
+
+
+ http://localhost:9222/json
+
+"C:\Program Files\Google\Chrome\Application\chrome.exe" --remote-debugging-port=9222 --user-data-dir="C:\chrome-data" --headless --disable-gpu --window-size=1280,720
+
+
+screencast -folder ./images
+
+kill chrome 
+Get-WmiObject Win32_Process -Filter "Name = 'chrome.exe'" | Where-Object { $_.CommandLine -like '*9222*' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force }
+
+
+rd /s /q "%USERPROFILE%\.m2\repository"
+
+// 25 frames per second.
+
+-vf "scale=trunc(iw/2)*2:trunc(ih/2)*2"
+This is a video filter:
+
+iw: input width
+
+ih: input height
+
+trunc(iw/2)*2: rounds down to the nearest even number
+ Ensures the width and height are even numbers, which is required by many video encoders like libx264.
+
+
+// record video 
+ffmpeg -f gdigrab -framerate 25 -i desktop -c:v libx264 -preset ultrafast -crf 25 -movflags +faststart output.mp4
+ffmpeg -framerate 25 -i images/screenshot_%06d.png -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" -c:v libx264 -pix_fmt yuv420p output.mp4 || echo "Conversion failed"
