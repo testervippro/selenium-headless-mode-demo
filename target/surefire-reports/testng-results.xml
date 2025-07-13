@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testng-results ignored="1" total="2" passed="1" failed="0" skipped="0">
+<testng-results ignored="2" total="3" passed="1" failed="0" skipped="0">
   <reporter-output>
   </reporter-output>
-  <suite started-at="2025-07-13T09:57:15 ICT" name="Surefire suite" finished-at="2025-07-13T09:57:57 ICT" duration-ms="41659">
+  <suite started-at="2025-07-13T10:18:20 ICT" name="Surefire suite" finished-at="2025-07-13T10:18:47 ICT" duration-ms="27532">
     <groups>
     </groups>
-    <test started-at="2025-07-13T09:57:15 ICT" name="Surefire test" finished-at="2025-07-13T09:57:57 ICT" duration-ms="41659">
+    <test started-at="2025-07-13T10:18:20 ICT" name="Surefire test" finished-at="2025-07-13T10:18:47 ICT" duration-ms="27532">
       <class name="com.example.TestRecordVideoHeadlessMode">
-        <test-method signature="testRecordVideoHeadlessModeWindows()[pri:0, instance:com.example.TestRecordVideoHeadlessMode@3741071d]" started-at="2025-07-13T09:57:16 ICT" name="testRecordVideoHeadlessModeWindows" finished-at="2025-07-13T09:57:57 ICT" duration-ms="41605" status="PASS">
+        <test-method signature="testRecordVideoHeadlessModeWindows()[pri:0, instance:com.example.TestRecordVideoHeadlessMode@627ff1b8]" started-at="2025-07-13T10:18:20 ICT" name="testRecordVideoHeadlessModeWindows" finished-at="2025-07-13T10:18:47 ICT" duration-ms="27496" status="PASS">
           <reporter-output>
           </reporter-output>
         </test-method> <!-- testRecordVideoHeadlessModeWindows -->
