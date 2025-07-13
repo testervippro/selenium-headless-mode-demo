@@ -71,7 +71,7 @@ node app.js
 
 ---
 
-### 🧪 4. Run the Test (Example for macOS)
+### 🧪 4. Run the Test 
 
 ```bash
 mvn -Dtest=TestRecordVideoHeadlessMode#testRecordVideoHeadlessModeInSeleniumGrid test
