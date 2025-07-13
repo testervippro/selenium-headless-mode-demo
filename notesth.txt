@@ -30,4 +30,18 @@ trunc(iw/2)*2: rounds down to the nearest even number
 
 // record video 
 ffmpeg -f gdigrab -framerate 25 -i desktop -c:v libx264 -preset ultrafast -crf 25 -movflags +faststart output.mp4
-ffmpeg -framerate 25 -i images/screenshot_%06d.png -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" -c:v libx264 -pix_fmt yuv420p output.mp4 || echo "Conversion failed"
+ffmpeg -framerate 25 -i images/screenshot_%06d.png -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" -c:v libx264 -pix_fmt yuv420p video/output.mp4 || echo "Conversion failed"
+
+
+docker build -t chrome-screencast .
+
+
+./screencastlinuxv1 --folder images
+
+docker build -t chrome-screencast .
+docker rm -f chrome-screencast;
+
+docker run -d --name chrome-screencast -p 4444:4444 -p 5900:5900 -p 9222:9222 --shm-size="2g" -e SE_VNC_NO_PASSWORD=true  -v "${PWD}/images:/usr/src/app/images" chrome-screencast
+
+
+mvn -Dtest=TestRecordVideoHeadlessMode#testRecordVideoHeadlessModeInSeleniumGrid clean test

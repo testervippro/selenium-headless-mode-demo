@@ -7,10 +7,12 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.remote.RemoteWebDriver;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import static com.selenium.Main.executeCMDInSilentMode;
 import java.io.OutputStream;
+import java.net.URL;
 import java.nio.file.Path;
 
 public class TestRecordVideoHeadlessMode {
@@ -137,6 +139,32 @@ public class TestRecordVideoHeadlessMode {
                 + "-vf scale=trunc(iw/2)*2:trunc(ih/2)*2 -c:v libx264 -pix_fmt yuv420p output.mp4";
 
         executeCMDInSilentMode(cmdConvert);
+
+    }
+
+    @Test()
+    public void testRecordVideoHeadlessModeInSeleniumGrid() throws Exception {
+
+        String gridUrl = "http://localhost:4444/wd/hub";
+
+        // Setup Selenium in headless mode
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--remote-debugging-port=9222");
+        options.addArguments("--mute-audio");
+        options.addArguments("--headless=new");
+        options.addArguments("--window-size=1920,1080");
+
+        // Launch browser
+        WebDriver driver = new RemoteWebDriver(new URL(gridUrl), options);
+        driver.get("https://www.youtube.com/watch?v=JVlDTK2-hUI");
+
+        Thread.sleep(3_000);
+        // force play video
+        Actions actions = new Actions(driver);
+        actions.sendKeys(Keys.SPACE).perform(); // Toggle play/pause
+
+        Thread.sleep(20_000); // Watch video for 20 seconds
+        driver.quit();
 
     }
 

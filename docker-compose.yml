@@ -1,0 +1,18 @@
+version: "3.8"
+
+services:
+  chrome-screencast:
+    build:
+      context: .          # Use current directory as the build context
+      dockerfile: Dockerfile  # Optional, defaults to 'Dockerfile'
+    image: chrome-screencast
+    ports:
+      - "4444:4444"     # Selenium Grid
+      - "5900:5900"     # VNC
+      - "9222:9222"     # Chrome DevTools
+    shm_size: "2g"
+    environment:
+      SE_VNC_NO_PASSWORD: "true"
+    volumes:
+      - ./output.mp4:/usr/src/app/output.mp4
+      - ./images:/usr/src/app/images
