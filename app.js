@@ -1,65 +1,62 @@
 const { spawn, exec } = require("child_process");
-const fs = require("fs");
-const path = require("path");
+const fs = require("fs/promises");
 
+// Folder and container names
+const IMAGES = "images";
+const VIDEOS = "videos";
+const CONTAINER = "chrome-screencast";
 
-// Start streaming Docker logs
-const logStream = spawn("docker", ["logs", "-f", "chrome-screencast"]);
+// Helper to run shell commands and return output or error
+const run = (cmd) =>
+  new Promise((resolve, reject) => {
+    exec(cmd, (err, stdout, stderr) => {
+      if (err) reject(stderr || err);
+      else resolve(stdout);
+    });
+  });
 
-logStream.stdout.on("data", (data) => {
-  const line = data.toString().trim();
- 
+// Helper to clean and recreate a folder
+const reset = async (folder) => {
+  try {
+    await fs.rm(folder, { recursive: true, force: true });
+  } catch (_) {}
+  await fs.mkdir(folder, { recursive: true });
+};
 
-  // === When session starts ===
-if (line.includes("Session created by the Distributor")) {
-  console.log(" Deleted existing contents in 'images'");
-  console.log(" Detected new session — starting screencast...");
+// Listen to Docker container logs
+const logStream = spawn("docker", ["logs", "-f", CONTAINER]);
 
-  const sessionFolder = "images";
+logStream.stdout.on("data", async (data) => {
+  const line = data.toString();
 
-  // Clean the folder if it exists
-  if (fs.existsSync(sessionFolder)) {
-    fs.rmSync(sessionFolder, { recursive: true, force: true });
-    console.log(" Deleted existing contents in 'images'");
+  // === Start screencast when session is created ===
+  if (line.includes("Session created by the Distributor")) {
+    console.log("New session — resetting folder & starting screencast");
+
+    await reset(IMAGES);
+
+    const screencastCmd = `docker exec ${CONTAINER} /usr/src/app/screencastlinuxv2 --folder /usr/src/app/images`;
+    try {
+      await run(screencastCmd);
+    } catch (e) {
+      console.error(" Screencast error:", e);
+    }
   }
 
-  // Recreate the folder
-  fs.mkdirSync(sessionFolder, { recursive: true });
+  // === Convert screenshots to video when session ends ===
+  if (line.toLowerCase().includes("stopping session")) {
+    console.log(" Session ended — converting to video...");
 
-  // Run screencast inside the container
-  const cmd = `docker exec chrome-screencast /usr/src/app/screencastlinuxv2 --folder /usr/src/app/images`;
-  exec(cmd, (err) => {
-    if (err) {
-      console.error(" Failed to trigger screencast:", err.message);
-      return;
+    await fs.mkdir(VIDEOS, { recursive: true });
+
+    const ffmpegCmd = `ffmpeg -y -framerate 25 -i ${IMAGES}/screenshot_%06d.png \
+-vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" -c:v libx264 -pix_fmt yuv420p ${VIDEOS}/output.mp4`;
+
+    try {
+      await run(ffmpegCmd);
+      console.log(" Video saved to:", `${VIDEOS}/output.mp4`);
+    } catch (e) {
+      console.error(" FFmpeg error:", e);
     }
-    console.log(`📹 Screencast started in: ${sessionFolder}`);
-  });
-}
-
-
-  // === When session ends ===
-  if (line.toLowerCase().includes("stopping session") ) {
-    
-    console.log(" Detected session end — converting video...");
-
-       const videosFolder = `videos`;
-
-    // Create local folder if needed
-    if (!fs.existsSync(videosFolder)) {
-      fs.mkdirSync(videosFolder, { recursive: true });
-    }
-
-  const cmd = `ffmpeg -y -framerate 25 -i images/screenshot_%06d.png -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" -c:v libx264 -pix_fmt yuv420p videos/output.mp4`;
-
-    exec(cmd, (err) => {
-      if (err) {
-        console.error(" Failed to convert video:", err.message);
-        return;
-      }
-      console.log(" Converted images to videos/output.mp4");
-    });
   }
 });
-
-
