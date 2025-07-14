@@ -5,6 +5,10 @@ const fs = require("fs/promises");
 const IMAGES = "images";
 const VIDEOS = "videos";
 const CONTAINER = "chrome-screencast";
+const screencastCmd = `docker exec ${CONTAINER} /usr/src/app/screencastlinuxv2 --folder /usr/src/app/images`;
+const ffmpegCmd = `ffmpeg -y -framerate 25 -i ${IMAGES}/screenshot_%06d.png \
+-vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" -c:v libx264 -pix_fmt yuv420p ${VIDEOS}/output.mp4`;
+
 
 // Helper to run shell commands and return output or error
 const run = (cmd) =>
@@ -23,6 +27,8 @@ const reset = async (folder) => {
   await fs.mkdir(folder, { recursive: true });
 };
 
+
+
 // Listen to Docker container logs
 const logStream = spawn("docker", ["logs", "-f", CONTAINER]);
 
@@ -32,10 +38,7 @@ logStream.stdout.on("data", async (data) => {
   // === Start screencast when session is created ===
   if (line.includes("Session created by the Distributor")) {
     console.log("New session — resetting folder & starting screencast");
-
     await reset(IMAGES);
-
-    const screencastCmd = `docker exec ${CONTAINER} /usr/src/app/screencastlinuxv2 --folder /usr/src/app/images`;
     try {
       await run(screencastCmd);
     } catch (e) {
@@ -48,9 +51,6 @@ logStream.stdout.on("data", async (data) => {
     console.log(" Session ended — converting to video...");
 
     await fs.mkdir(VIDEOS, { recursive: true });
-
-    const ffmpegCmd = `ffmpeg -y -framerate 25 -i ${IMAGES}/screenshot_%06d.png \
--vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" -c:v libx264 -pix_fmt yuv420p ${VIDEOS}/output.mp4`;
 
     try {
       await run(ffmpegCmd);
