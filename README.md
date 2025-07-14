@@ -37,23 +37,15 @@ docker build -t chrome-screencast .
 #### ▶️ On Windows PowerShell
 
 ```powershell
-docker run -d --name chrome-screencast `
-  -p 4444:4444 -p 5900:5900 -p 9222:9222 `
-  --shm-size="2g" `
-  -e SE_VNC_NO_PASSWORD=true `
-  -v "${PWD}/images:/usr/src/app/images" `
-  chrome-screencast
+docker run -d --name chrome-screencast -p 4444:4444 -p 5900:5900 -p 9222:9222 --shm-size="2g" -e SE_VNC_NO_PASSWORD=true -v "${PWD}/images:/usr/src/app/images" chrome-screencast
+
 ```
 
 #### ▶️ On macOS / Linux (bash)
 
 ```bash
-docker run -d --name chrome-screencast \
-  -p 4444:4444 -p 5900:5900 -p 9222:9222 \
-  --shm-size="2g" \
-  -e SE_VNC_NO_PASSWORD=true \
-  -v "$(pwd)/images:/usr/src/app/images" \
-  chrome-screencast
+docker run -d --name chrome-screencast -p 4444:4444 -p 5900:5900 -p 9222:9222 --shm-size="2g" -e SE_VNC_NO_PASSWORD=true -v "$(pwd)/images:/usr/src/app/images" chrome-screencast
+
 ```
 
 ---
