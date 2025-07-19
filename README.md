@@ -69,6 +69,18 @@ node app.js
 mvn -Dtest=TestRecordVideoHeadlessMode#testRecordVideoHeadlessModeInSeleniumGrid test
 ```
 
+###  Way 2
+###  1. Run the Test 
+
+```bash
+docker run -d  -p 4444:4444 -p 5900:5900 -p 9222:9222 --shm-size="2g" -e SE_VNC_NO_PASSWORD=true  -v "${PWD}/images:/usr/src/app/images"  -v "${PWD}/videos:/usr/src/app/videos" cuxuanthoai/standalone-chrome-record-headless
+```
+###  2. Run the Test 
+
+```bash
+mvn -Dtest=TestRecordVideoHeadlessMode#testRecordVideoHeadlessModeInSeleniumGrid test
+```
+
 ---
 
 ## 📺 Demo
